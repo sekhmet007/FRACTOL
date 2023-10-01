@@ -1,0 +1,56 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    MAKEFILE                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: ecullier <ecullier@student.42perpignan.    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/07/04 13:24:44 by ecullier          #+#    #+#              #
+#    Updated: 2023/07/04 13:55:19 by ecullier         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+
+FRACTOL_SRCS = fractol.c
+HEADERS = fractol.h
+
+CC = gcc -g
+CC_FLAGS = -lm -Wall -Werror -Wextra -Ilmx_linux
+
+.PHONY: all libft clean fclean re
+
+# Les cibles all, libft, push_swap et checker dépendent de leurs fichiers objets respectifs
+all: libft fractol  minilibx
+	@echo "✅ Fractol compiled\n"
+
+# Compiler la bibliothèque libft
+libft:
+	@make -s -C libft
+	@echo "✅ Libft compiled\n"
+minilibx:
+	@make -s -C minilibx
+	@echo "✅ minilibx compiled\n"
+# Compiler push_swap
+fractol: $(FRACTOL_SRCS:%.c=%.o) libft/libft.a
+	@$(CC) $^ -o $@ $(CC_FLAGS) -Llibft -lft $(minilibx-linux/libmlx.a minilibx-linux/libmlx_Linux.a) -lXext -lX11 -lm -lz
+
+# Les fichiers objets dépendent des fichiers sources et des en-têtes correspondantes
+srcs/%.o: srcs/%.c ${HEADERS}
+	@$(CC) -c $< -o $@ $(CC_FLAGS)
+
+# Compiler chaque fichier source individuellement en fichier objet
+%.o: %.c ${HEADERS}
+	@$(CC) -c $< -o $@ $(CC_FLAGS)
+
+clean:
+	@rm -rf $(FRACTOL_SRCS:%.c=%.o)
+	@make -s clean -C libft
+	@echo "✅ fractol cleaned\n"
+
+fclean: clean
+	@rm -rf fractol
+	@make -s fclean -C libft
+	@echo "✅ Libft cleaned\n"
+
+re: fclean all
+	@echo "✅ fractol recompiled\n"
